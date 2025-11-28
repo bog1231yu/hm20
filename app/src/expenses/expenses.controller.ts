@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, ValidationPipe } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { QueryExpensesDto } from './dto/query-expenses.dto';
 import type { Expense } from './expense.interface';
 
 @Controller('expenses')
@@ -9,14 +10,14 @@ export class ExpensesController {
 
   // CREATE
   @Post()
-  create(@Body() createExpenseDto: CreateExpenseDto): Expense {
+  create(@Body(ValidationPipe) createExpenseDto: CreateExpenseDto): Expense {
     return this.expensesService.create(createExpenseDto);
   }
 
-  // READ ALL
+  // READ ALL with pagination and filtering
   @Get()
-  findAll(): Expense[] {
-    return this.expensesService.findAll();
+  findAll(@Query(ValidationPipe) query: QueryExpensesDto): { data: Expense[]; total: number; page: number; take: number } {
+    return this.expensesService.findAll(query);
   }
 
   // READ ONE

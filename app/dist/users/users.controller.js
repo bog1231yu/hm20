@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
+const query_users_dto_1 = require("./dto/query-users.dto");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -25,8 +26,8 @@ let UsersController = class UsersController {
     create(createUserDto) {
         return this.usersService.create(createUserDto);
     }
-    findAll() {
-        return this.usersService.findAll();
+    findAll(query) {
+        return this.usersService.findAll(query);
     }
     findOne(id) {
         return this.usersService.findOne(parseInt(id, 10));
@@ -42,16 +43,17 @@ let UsersController = class UsersController {
 exports.UsersController = UsersController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Object)
 ], UsersController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Array)
+    __metadata("design:paramtypes", [query_users_dto_1.QueryUsersDto]),
+    __metadata("design:returntype", Object)
 ], UsersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
@@ -63,7 +65,7 @@ __decorate([
 __decorate([
     (0, common_1.Put)(':id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(1, (0, common_1.Body)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_user_dto_1.UpdateUserDto]),
     __metadata("design:returntype", Object)

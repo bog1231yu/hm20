@@ -21,8 +21,23 @@ let ExpensesService = class ExpensesService {
         this.expenses.push(expense);
         return expense;
     }
-    findAll() {
-        return this.expenses;
+    findAll(query) {
+        let filtered = this.expenses;
+        if (query.category) {
+            filtered = filtered.filter(expense => expense.category === query.category);
+        }
+        if (query.priceFrom !== undefined) {
+            filtered = filtered.filter(expense => expense.price >= query.priceFrom);
+        }
+        if (query.priceTo !== undefined) {
+            filtered = filtered.filter(expense => expense.price <= query.priceTo);
+        }
+        const total = filtered.length;
+        const page = query.page || 1;
+        const take = query.take || 30;
+        const skip = (page - 1) * take;
+        const data = filtered.slice(skip, skip + take);
+        return { data, total, page, take };
     }
     findOne(id) {
         return this.expenses.find(expense => expense.id === id);

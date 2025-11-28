@@ -19,8 +19,20 @@ let UsersService = class UsersService {
         this.users.push(user);
         return user;
     }
-    findAll() {
-        return this.users;
+    findAll(query) {
+        let filtered = this.users;
+        if (query.gender) {
+            filtered = filtered.filter(user => user.gender === query.gender);
+        }
+        if (query.email) {
+            filtered = filtered.filter(user => user.email.toLowerCase().startsWith(query.email.toLowerCase()));
+        }
+        const total = filtered.length;
+        const page = query.page || 1;
+        const take = query.take || 30;
+        const skip = (page - 1) * take;
+        const data = filtered.slice(skip, skip + take);
+        return { data, total, page, take };
     }
     findOne(id) {
         return this.users.find(user => user.id === id);

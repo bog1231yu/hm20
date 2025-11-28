@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from './user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { QueryUsersDto } from './dto/query-users.dto';
 
 @Injectable()
 export class UsersService {
@@ -18,9 +19,29 @@ export class UsersService {
     return user;
   }
 
-  // READ ALL
-  findAll(): User[] {
-    return this.users;
+  // READ ALL with pagination and filtering
+  findAll(query: QueryUsersDto): { data: User[]; total: number; page: number; take: number } {
+    let filtered = this.users;
+
+    // Apply gender filter
+    if (query.gender) {
+      filtered = filtered.filter(user => user.gender === query.gender);
+    }
+
+    // Apply email filter (startsWith)
+    if (query.email) {
+      filtered = filtered.filter(user => user.email.toLowerCase().startsWith(query.email!.toLowerCase()));
+    }
+
+    const total = filtered.length;
+    const page = query.page || 1;
+    const take = query.take || 30;
+
+    // Apply pagination
+    const skip = (page - 1) * take;
+    const data = filtered.slice(skip, skip + take);
+
+    return { data, total, page, take };
   }
 
   // READ ONE

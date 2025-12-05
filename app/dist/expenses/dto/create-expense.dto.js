@@ -11,14 +11,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateExpenseDto = void 0;
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 const KNOWN_CATEGORIES = ['food', 'transport', 'utilities', 'entertainment', 'office', 'supplies', 'other'];
 class CreateExpenseDto {
+    userId;
     category;
     productName;
     quantity;
     price;
 }
 exports.CreateExpenseDto = CreateExpenseDto;
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: 'userId is required' }),
+    (0, class_validator_1.IsMongoId)({ message: 'userId must be a valid MongoId' }),
+    __metadata("design:type", String)
+], CreateExpenseDto.prototype, "userId", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'category is required' }),
     (0, class_validator_1.IsString)({ message: 'category must be a string' }),
@@ -32,12 +39,14 @@ __decorate([
 ], CreateExpenseDto.prototype, "productName", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'quantity is required' }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'quantity must be a number' }),
     (0, class_validator_1.Min)(1, { message: 'quantity must be at least 1' }),
     __metadata("design:type", Number)
 ], CreateExpenseDto.prototype, "quantity", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'price is required' }),
+    (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'price must be a number' }),
     (0, class_validator_1.Min)(0.01, { message: 'price must be at least 0.01' }),
     __metadata("design:type", Number)

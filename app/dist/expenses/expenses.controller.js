@@ -22,14 +22,21 @@ let ExpensesController = class ExpensesController {
     constructor(expensesService) {
         this.expensesService = expensesService;
     }
-    create(createExpenseDto) {
+    async create(createExpenseDto) {
         return this.expensesService.create(createExpenseDto);
     }
-    findAll(query) {
+    async findAll(query) {
         return this.expensesService.findAll(query);
     }
-    findOne(id) {
-        return this.expensesService.findOne(parseInt(id, 10));
+    async findOne(id) {
+        return this.expensesService.findOne(id);
+    }
+    async update(id, dto) {
+        return this.expensesService.update(id, dto);
+    }
+    async delete(id) {
+        const success = await this.expensesService.delete(id);
+        return { success };
     }
 };
 exports.ExpensesController = ExpensesController;
@@ -38,22 +45,37 @@ __decorate([
     __param(0, (0, common_1.Body)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_expense_dto_1.CreateExpenseDto]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], ExpensesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [query_expenses_dto_1.QueryExpensesDto]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], ExpensesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], ExpensesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)(common_1.ValidationPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, create_expense_dto_1.CreateExpenseDto]),
+    __metadata("design:returntype", Promise)
+], ExpensesController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ExpensesController.prototype, "delete", null);
 exports.ExpensesController = ExpensesController = __decorate([
     (0, common_1.Controller)('expenses'),
     __metadata("design:paramtypes", [expenses_service_1.ExpensesService])

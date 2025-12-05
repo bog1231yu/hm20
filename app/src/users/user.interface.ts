@@ -5,4 +5,6 @@ export interface User {
   email: string;
   phoneNumber: string;
   gender: string;
+  subscriptionStartDate?: string; // ISO string
+  subscriptionEndDate?: string; // ISO string
 }

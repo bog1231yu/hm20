@@ -8,16 +8,38 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongodb_memory_server_1 = require("mongodb-memory-server");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const users_module_1 = require("./users/users.module");
 const expenses_module_1 = require("./expenses/expenses.module");
+const products_module_1 = require("./products/products.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule, expenses_module_1.ExpensesModule],
+        imports: [
+            config_1.ConfigModule.forRoot({ isGlobal: true }),
+            mongoose_1.MongooseModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (configService) => {
+                    let uri = configService.get('MONGO_URI');
+                    if (!uri) {
+                        const mongod = await mongodb_memory_server_1.MongoMemoryServer.create();
+                        uri = mongod.getUri();
+                        console.log('Started in-memory MongoDB at', uri);
+                    }
+                    return { uri };
+                },
+            }),
+            users_module_1.UsersModule,
+            expenses_module_1.ExpensesModule,
+            products_module_1.ProductsModule,
+        ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })

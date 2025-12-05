@@ -1,8 +1,7 @@
-import { Controller, Get, Post, Param, Body, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, ValidationPipe, Put, Delete } from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { QueryExpensesDto } from './dto/query-expenses.dto';
-import type { Expense } from './expense.interface';
 
 @Controller('expenses')
 export class ExpensesController {
@@ -10,19 +9,32 @@ export class ExpensesController {
 
   // CREATE
   @Post()
-  create(@Body(ValidationPipe) createExpenseDto: CreateExpenseDto): Expense {
+  async create(@Body(ValidationPipe) createExpenseDto: CreateExpenseDto) {
     return this.expensesService.create(createExpenseDto);
   }
 
   // READ ALL with pagination and filtering
   @Get()
-  findAll(@Query(ValidationPipe) query: QueryExpensesDto): { data: Expense[]; total: number; page: number; take: number } {
+  async findAll(@Query(ValidationPipe) query: QueryExpensesDto) {
     return this.expensesService.findAll(query);
   }
 
   // READ ONE
   @Get(':id')
-  findOne(@Param('id') id: string): Expense | undefined {
-    return this.expensesService.findOne(parseInt(id, 10));
+  async findOne(@Param('id') id: string) {
+    return this.expensesService.findOne(id);
+  }
+
+  // UPDATE
+  @Put(':id')
+  async update(@Param('id') id: string, @Body(ValidationPipe) dto: CreateExpenseDto) {
+    return this.expensesService.update(id, dto);
+  }
+
+  // DELETE
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    const success = await this.expensesService.delete(id);
+    return { success };
   }
 }

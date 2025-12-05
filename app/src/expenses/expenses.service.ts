@@ -1,56 +1,79 @@
-import { Injectable } from '@nestjs/common';
-import { Expense } from './expense.interface';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { QueryExpensesDto } from './dto/query-expenses.dto';
+import type { ExpenseDocument } from './schemas/expense.schema';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ExpensesService {
-  private expenses: Expense[] = [];
-  private nextId: number = 1;
+  constructor(
+    @InjectModel('Expense') private expenseModel: Model<ExpenseDocument>,
+    private usersService: UsersService,
+  ) {}
 
   // CREATE
-  create(createExpenseDto: CreateExpenseDto): Expense {
+  async create(createExpenseDto: CreateExpenseDto) {
+    // verify user exists
+    const user = await this.usersService.findOne(createExpenseDto.userId);
+    if (!user) throw new NotFoundException('User not found');
+
     const totalPrice = createExpenseDto.quantity * createExpenseDto.price;
-    const expense: Expense = {
-      id: this.nextId++,
-      ...createExpenseDto,
+    const created = await this.expenseModel.create({
+      user: createExpenseDto.userId,
+      category: createExpenseDto.category,
+      productName: createExpenseDto.productName,
+      quantity: createExpenseDto.quantity,
+      price: createExpenseDto.price,
       totalPrice,
-    };
-    this.expenses.push(expense);
-    return expense;
+    });
+    return created.toObject();
   }
 
   // READ ALL with pagination and filtering
-  findAll(query: QueryExpensesDto): { data: Expense[]; total: number; page: number; take: number } {
-    let filtered = this.expenses;
-
-    // Apply category filter
-    if (query.category) {
-      filtered = filtered.filter(expense => expense.category === query.category);
+  async findAll(query: QueryExpensesDto) {
+    const filter: any = {};
+    if (query.category) filter.category = query.category;
+    if (query.priceFrom !== undefined || query.priceTo !== undefined) {
+      filter.price = {};
+      if (query.priceFrom !== undefined) filter.price.$gte = query.priceFrom;
+      if (query.priceTo !== undefined) filter.price.$lte = query.priceTo;
     }
 
-    // Apply price range filters
-    if (query.priceFrom !== undefined) {
-      filtered = filtered.filter(expense => expense.price >= query.priceFrom!);
-    }
-
-    if (query.priceTo !== undefined) {
-      filtered = filtered.filter(expense => expense.price <= query.priceTo!);
-    }
-
-    const total = filtered.length;
     const page = query.page || 1;
     const take = query.take || 30;
 
-    // Apply pagination
-    const skip = (page - 1) * take;
-    const data = filtered.slice(skip, skip + take);
+    const total = await this.expenseModel.countDocuments(filter);
+    const data = await this.expenseModel.find(filter).skip((page - 1) * take).limit(take).lean();
 
     return { data, total, page, take };
   }
 
   // READ ONE
-  findOne(id: number): Expense | undefined {
-    return this.expenses.find(expense => expense.id === id);
+  async findOne(id: string) {
+    return this.expenseModel.findById(id).lean();
+  }
+
+  async update(id: string, dto: Partial<CreateExpenseDto>) {
+    if (dto.userId) {
+      const user = await this.usersService.findOne(dto.userId);
+      if (!user) throw new NotFoundException('User not found');
+    }
+    if (dto.quantity !== undefined || dto.price !== undefined) {
+      const expense = await this.expenseModel.findById(id);
+      if (!expense) return null;
+      const quantity = dto.quantity ?? expense.quantity;
+      const price = dto.price ?? expense.price;
+      const totalPrice = quantity * price;
+      const updated = await this.expenseModel.findByIdAndUpdate(id, { ...dto, totalPrice }, { new: true }).lean();
+      return updated;
+    }
+    return this.expenseModel.findByIdAndUpdate(id, dto, { new: true }).lean();
+  }
+
+  async delete(id: string) {
+    const res = await this.expenseModel.findByIdAndDelete(id);
+    return !!res;
   }
 }

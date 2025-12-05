@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
 import type { User } from './user.interface';
 
 @Controller('users')
@@ -11,35 +12,43 @@ export class UsersController {
 
   // CREATE
   @Post()
-  create(@Body(ValidationPipe) createUserDto: CreateUserDto): User {
+  async create(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<any> {
     return this.usersService.create(createUserDto);
   }
 
   // READ ALL with pagination and filtering
   @Get()
-  findAll(@Query(ValidationPipe) query: QueryUsersDto): { data: User[]; total: number; page: number; take: number } {
+  async findAll(@Query(ValidationPipe) query: QueryUsersDto): Promise<any> {
     return this.usersService.findAll(query);
   }
 
   // READ ONE
   @Get(':id')
-  findOne(@Param('id') id: string): User | undefined {
-    return this.usersService.findOne(parseInt(id, 10));
+  async findOne(@Param('id') id: string): Promise<any> {
+    return this.usersService.findOne(id);
   }
 
   // UPDATE
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateUserDto: UpdateUserDto,
-  ): User | undefined {
-    return this.usersService.update(parseInt(id, 10), updateUserDto);
+  ): Promise<any> {
+    return this.usersService.update(id, updateUserDto);
   }
 
   // DELETE
   @Delete(':id')
-  delete(@Param('id') id: string): { success: boolean } {
-    const success = this.usersService.delete(parseInt(id, 10));
+  async delete(@Param('id') id: string): Promise<{ success: boolean }> {
+    const success = await this.usersService.delete(id);
     return { success };
+  }
+
+  // UPGRADE SUBSCRIPTION
+  @Post('upgrade-subscription')
+  async upgradeSubscription(@Body(ValidationPipe) body: UpgradeSubscriptionDto): Promise<any>{
+    const user = await this.usersService.upgradeSubscription(body.email);
+    if (!user) return { success: false };
+    return { success: true, user };
   }
 }

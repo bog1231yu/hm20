@@ -5,4 +5,6 @@ export interface User {
     email: string;
     phoneNumber: string;
     gender: string;
+    subscriptionStartDate?: string;
+    subscriptionEndDate?: string;
 }

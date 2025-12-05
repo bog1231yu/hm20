@@ -1,70 +1,73 @@
-import { Injectable } from '@nestjs/common';
-import { User } from './user.interface';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 
+import type { UserDocument } from './schemas/user.schema';
+
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
-  private nextId: number = 1;
+  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
 
   // CREATE
-  create(createUserDto: CreateUserDto): User {
-    const user: User = {
-      id: this.nextId++,
+  async create(createUserDto: CreateUserDto) {
+    const now = new Date();
+    const end = new Date(now);
+    end.setMonth(end.getMonth() + 1);
+
+    const created = await this.userModel.create({
       ...createUserDto,
-    };
-    this.users.push(user);
-    return user;
+      subscriptionStartDate: now,
+      subscriptionEndDate: end,
+    });
+    return created.toObject();
   }
 
   // READ ALL with pagination and filtering
-  findAll(query: QueryUsersDto): { data: User[]; total: number; page: number; take: number } {
-    let filtered = this.users;
+  async findAll(query: QueryUsersDto) {
+    const filter: any = {};
+    if (query.gender) filter.gender = query.gender;
+    if (query.email) filter.email = { $regex: `^${query.email}`, $options: 'i' };
 
-    // Apply gender filter
-    if (query.gender) {
-      filtered = filtered.filter(user => user.gender === query.gender);
-    }
-
-    // Apply email filter (startsWith)
-    if (query.email) {
-      filtered = filtered.filter(user => user.email.toLowerCase().startsWith(query.email!.toLowerCase()));
-    }
-
-    const total = filtered.length;
     const page = query.page || 1;
     const take = query.take || 30;
 
-    // Apply pagination
-    const skip = (page - 1) * take;
-    const data = filtered.slice(skip, skip + take);
+    const total = await this.userModel.countDocuments(filter);
+    const data = await this.userModel.find(filter).skip((page - 1) * take).limit(take).lean();
 
     return { data, total, page, take };
   }
 
   // READ ONE
-  findOne(id: number): User | undefined {
-    return this.users.find(user => user.id === id);
+  async findOne(id: string) {
+    return this.userModel.findById(id).lean();
   }
 
   // UPDATE
-  update(id: number, updateUserDto: UpdateUserDto): User | undefined {
-    const user = this.findOne(id);
-    if (user) {
-      Object.assign(user, updateUserDto);
-    }
-    return user;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).lean();
   }
 
   // DELETE
-  delete(id: number): boolean {
-    const index = this.users.findIndex(user => user.id === id);
-    if (index > -1) {
-      this.users.splice(index, 1);
-      return true;
-    }
-    return false;
+  async delete(id: string) {
+    const res = await this.userModel.findByIdAndDelete(id);
+    return !!res;
+  }
+
+  async findByEmail(email: string) {
+    return this.userModel.findOne({ email: { $regex: `^${email}$`, $options: 'i' } }).lean();
+  }
+
+  async upgradeSubscription(email: string) {
+    const user = await this.userModel.findOne({ email: { $regex: `^${email}$`, $options: 'i' } });
+    if (!user) return null;
+    const currentEnd = user.subscriptionEndDate ?? new Date();
+    const newEnd = new Date(currentEnd);
+    newEnd.setMonth(newEnd.getMonth() + 1);
+    user.subscriptionEndDate = newEnd;
+    await user.save();
+    return user.toObject();
   }
 }

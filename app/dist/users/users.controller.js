@@ -18,26 +18,33 @@ const users_service_1 = require("./users.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
 const query_users_dto_1 = require("./dto/query-users.dto");
+const upgrade_subscription_dto_1 = require("./dto/upgrade-subscription.dto");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
-    create(createUserDto) {
+    async create(createUserDto) {
         return this.usersService.create(createUserDto);
     }
-    findAll(query) {
+    async findAll(query) {
         return this.usersService.findAll(query);
     }
-    findOne(id) {
-        return this.usersService.findOne(parseInt(id, 10));
+    async findOne(id) {
+        return this.usersService.findOne(id);
     }
-    update(id, updateUserDto) {
-        return this.usersService.update(parseInt(id, 10), updateUserDto);
+    async update(id, updateUserDto) {
+        return this.usersService.update(id, updateUserDto);
     }
-    delete(id) {
-        const success = this.usersService.delete(parseInt(id, 10));
+    async delete(id) {
+        const success = await this.usersService.delete(id);
         return { success };
+    }
+    async upgradeSubscription(body) {
+        const user = await this.usersService.upgradeSubscription(body.email);
+        if (!user)
+            return { success: false };
+        return { success: true, user };
     }
 };
 exports.UsersController = UsersController;
@@ -46,21 +53,21 @@ __decorate([
     __param(0, (0, common_1.Body)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [query_users_dto_1.QueryUsersDto]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
@@ -68,15 +75,22 @@ __decorate([
     __param(1, (0, common_1.Body)(common_1.ValidationPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_user_dto_1.UpdateUserDto]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Object)
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "delete", null);
+__decorate([
+    (0, common_1.Post)('upgrade-subscription'),
+    __param(0, (0, common_1.Body)(common_1.ValidationPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [upgrade_subscription_dto_1.UpgradeSubscriptionDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "upgradeSubscription", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

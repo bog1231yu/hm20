@@ -2,11 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MulterModule } from '@nestjs/platform-express';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
+import { MigrationModule } from './migrations/migration.module';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -24,9 +28,15 @@ import { ProductsModule } from './products/products.module';
         return { uri };
       },
     }),
+    MulterModule.register({
+      dest: './uploads',
+    }),
+    AuthModule,
     UsersModule,
     ExpensesModule,
     ProductsModule,
+    MigrationModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

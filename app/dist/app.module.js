@@ -11,11 +11,15 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongodb_memory_server_1 = require("mongodb-memory-server");
+const platform_express_1 = require("@nestjs/platform-express");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const users_module_1 = require("./users/users.module");
 const expenses_module_1 = require("./expenses/expenses.module");
 const products_module_1 = require("./products/products.module");
+const auth_module_1 = require("./auth/auth.module");
+const migration_module_1 = require("./migrations/migration.module");
+const aws_module_1 = require("./aws/aws.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,9 +40,15 @@ exports.AppModule = AppModule = __decorate([
                     return { uri };
                 },
             }),
+            platform_express_1.MulterModule.register({
+                dest: './uploads',
+            }),
+            auth_module_1.AuthModule,
             users_module_1.UsersModule,
             expenses_module_1.ExpensesModule,
             products_module_1.ProductsModule,
+            migration_module_1.MigrationModule,
+            aws_module_1.AwsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

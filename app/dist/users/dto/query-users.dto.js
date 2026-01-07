@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryUsersDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 var Gender;
 (function (Gender) {
     Gender["MALE"] = "male";
@@ -26,6 +27,7 @@ class QueryUsersDto {
 }
 exports.QueryUsersDto = QueryUsersDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: 'Page number for pagination' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'page must be a number' }),
@@ -33,6 +35,7 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryUsersDto.prototype, "page", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 30, description: 'Number of items per page' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'take must be a number' }),
@@ -40,11 +43,13 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryUsersDto.prototype, "take", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'male', enum: ['male', 'female', 'other'], description: 'Filter by gender' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(Gender, { message: 'gender must be male, female, or other' }),
     __metadata("design:type", String)
 ], QueryUsersDto.prototype, "gender", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'john.doe@example.com', description: 'Filter by email' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'email must be a string' }),
     __metadata("design:type", String)

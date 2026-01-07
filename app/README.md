@@ -1,98 +1,231 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Expense Tracker API with Photo Upload Features
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive expense tracking API built with NestJS, MongoDB, and AWS S3/CloudFront for photo storage and delivery.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+- ✅ User authentication with JWT
+- ✅ Role-based access control (USER/ADMIN)
+- ✅ Expense tracking with categories
+- ✅ Product management
+- ✅ User statistics and analytics
+- ✅ **NEW:** Profile photo upload for users
+- ✅ **NEW:** Multiple photo upload for products
+- ✅ **NEW:** Photo deletion capabilities
+- ✅ **NEW:** AWS S3 integration for storage
+- ✅ **NEW:** CloudFront CDN configuration
+- ✅ Complete Swagger API documentation
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Node.js (v16 or higher)
+- MongoDB
+- AWS Account with S3 and CloudFront access
 
-```bash
-$ npm install
+## Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables in `.env`:
+   ```env
+   # Database
+   MONGO_URI=mongodb://localhost:27017/expense-tracker
+
+   # JWT
+   JWT_SECRET=your-jwt-secret
+
+   # AWS S3 Configuration
+   AWS_REGION=us-east-1
+   AWS_ACCESS_KEY_ID=your-access-key-id
+   AWS_SECRET_ACCESS_KEY=your-secret-access-key
+   AWS_S3_BUCKET=expense-tracker-bucket
+
+   # CloudFront (Optional)
+   CLOUDFRONT_DISTRIBUTION_ID=your-distribution-id
+   CLOUDFRONT_DOMAIN=your-distribution-domain.cloudfront.net
+   ```
+
+## AWS Setup Instructions
+
+### 1. Create S3 Bucket
+
+1. Go to AWS S3 Console
+2. Create a new bucket (e.g., `expense-tracker-bucket`)
+3. Configure bucket permissions:
+   - Go to Permissions → Bucket Policy
+   - Add the following policy to allow public read access:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::expense-tracker-bucket/*"
+        }
+    ]
+}
 ```
 
-## Compile and run the project
+### 2. Create IAM User
 
-```bash
-# development
-$ npm run start
+1. Go to AWS IAM Console
+2. Create a new user with programmatic access
+3. Attach the following policy:
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::expense-tracker-bucket",
+                "arn:aws:s3:::expense-tracker-bucket/*"
+            ]
+        }
+    ]
+}
 ```
 
-## Run tests
+### 3. Configure CloudFront (Optional but Recommended)
+
+1. Go to AWS CloudFront Console
+2. Create a new distribution:
+   - Origin Domain: Select your S3 bucket
+   - Origin Path: Leave empty
+   - Enable Origin Shield: No
+   - Restrict Bucket Access: No
+3. Configure cache behavior:
+   - Viewer Protocol Policy: Redirect HTTP to HTTPS
+   - Allowed HTTP Methods: GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE
+4. Note down the Distribution ID and Domain Name
+
+## Running the Application
 
 ```bash
-# unit tests
-$ npm run test
+# Development
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Production
+npm run build
+npm run start:prod
 ```
 
-## Deployment
+## API Documentation
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Once the application is running, visit:
+- **API**: http://localhost:3000
+- **Swagger Documentation**: http://localhost:3000/api
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Photo Upload Features
 
+### User Profile Photos
+
+- **Upload**: `POST /users/{id}/profile-photo`
+  - Requires authentication
+  - Users can upload their own photos, admins can upload any
+  - Supports image files (jpg, png, etc.) up to 5MB
+
+- **Delete**: `DELETE /users/{id}/profile-photo`
+  - Requires authentication
+  - Users can delete their own photos, admins can delete any
+
+### Product Photos
+
+- **Upload Multiple**: `POST /products/{id}/photos`
+  - Admin only
+  - Supports up to 10 images per request
+  - Each image up to 5MB
+
+- **Delete Single**: `DELETE /products/{id}/photos`
+  - Admin only
+  - Requires photoUrl in request body
+
+- **Delete All**: `DELETE /products/{id}/photos/all`
+  - Admin only
+  - Removes all photos from a product
+
+## File Storage Structure
+
+```
+S3 Bucket Structure:
+├── users/
+│   └── {userId}/
+│       └── profile-{timestamp}-{filename}
+└── products/
+    └── {productId}/
+        ├── photo-{timestamp}-{random}-{filename1}
+        ├── photo-{timestamp}-{random}-{filename2}
+        └── ...
+```
+
+## Security Features
+
+- JWT authentication required for all operations
+- Role-based access control
+- File type validation (images only)
+- File size limits (5MB per file)
+- Automatic cleanup of old profile photos
+- CloudFront cache invalidation on file deletion
+
+## Testing the API
+
+1. Register a user or login with existing credentials
+2. Use the JWT token in Authorization header: `Bearer {token}`
+3. Test photo upload endpoints with form-data
+4. View uploaded photos via the returned URLs
+
+## Environment Variables Reference
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `MONGO_URI` | MongoDB connection string | Yes |
+| `JWT_SECRET` | JWT signing secret | Yes |
+| `AWS_REGION` | AWS region (e.g., us-east-1) | Yes |
+| `AWS_ACCESS_KEY_ID` | AWS access key | Yes |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key | Yes |
+| `AWS_S3_BUCKET` | S3 bucket name | Yes |
+| `CLOUDFRONT_DISTRIBUTION_ID` | CloudFront distribution ID | No |
+| `CLOUDFRONT_DOMAIN` | CloudFront domain | No |
+
+## Troubleshooting
+
+### Common Issues
+
+1. **AWS Credentials Error**: Ensure IAM user has correct permissions
+2. **Bucket Not Found**: Verify bucket name and region
+3. **File Upload Fails**: Check file size (max 5MB) and type (images only)
+4. **CloudFront Issues**: Ensure distribution is properly configured
+
+### Logs
+
+Check application logs for detailed error messages:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Contributing
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License.

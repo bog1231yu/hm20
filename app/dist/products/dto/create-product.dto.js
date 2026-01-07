@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateProductDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 class CreateProductDto {
     name;
     price;
@@ -21,11 +22,13 @@ class CreateProductDto {
 }
 exports.CreateProductDto = CreateProductDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Laptop', description: 'Product name' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "name", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 999.99, description: 'Product price' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),
@@ -33,16 +36,19 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "price", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'electronics', description: 'Product category' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "category", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'High-performance laptop', description: 'Product description' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "description", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 10, description: 'Available quantity' }),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)(),

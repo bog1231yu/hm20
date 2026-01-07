@@ -4,10 +4,10 @@ import { QueryExpensesDto } from './dto/query-expenses.dto';
 export declare class ExpensesController {
     private expensesService;
     constructor(expensesService: ExpensesService);
-    create(createExpenseDto: CreateExpenseDto): Promise<import("./schemas/expense.schema").ExpenseDocument & {
+    create(createExpenseDto: CreateExpenseDto, req: any): Promise<import("./schemas/expense.schema").ExpenseDocument & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    findAll(query: QueryExpensesDto): Promise<{
+    findAll(query: QueryExpensesDto, req: any): Promise<{
         data: (import("mongoose").FlattenMaps<import("./schemas/expense.schema").ExpenseDocument> & {
             _id: import("mongoose").Types.ObjectId;
         })[];
@@ -15,13 +15,15 @@ export declare class ExpensesController {
         page: number;
         take: number;
     }>;
-    findOne(id: string): Promise<(import("mongoose").FlattenMaps<import("./schemas/expense.schema").ExpenseDocument> & {
+    findOne(id: string, req: any): Promise<(import("mongoose").FlattenMaps<import("./schemas/expense.schema").ExpenseDocument> & {
         _id: import("mongoose").Types.ObjectId;
     }) | null>;
-    update(id: string, dto: CreateExpenseDto): Promise<(import("mongoose").FlattenMaps<import("./schemas/expense.schema").ExpenseDocument> & {
+    update(id: string, dto: CreateExpenseDto, req: any): Promise<(import("mongoose").FlattenMaps<import("./schemas/expense.schema").ExpenseDocument> & {
         _id: import("mongoose").Types.ObjectId;
     }) | null>;
-    delete(id: string): Promise<{
+    delete(id: string, req: any): Promise<{
         success: boolean;
     }>;
+    getStatistics(req: any): Promise<any[]>;
+    getTopSpenders(limit?: string): Promise<any[]>;
 }

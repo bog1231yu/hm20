@@ -12,6 +12,7 @@ export declare class ProductsController {
         category: string;
         description?: string | undefined;
         quantity: number;
+        photos: string[];
         _id: any;
         __v?: any;
         $assertPopulated: <Paths = {}>(path: string | string[], values?: Partial<Paths> | undefined) => Omit<import("./schemas/product.schema").ProductDocument, keyof Paths> & Paths;
@@ -152,4 +153,13 @@ export declare class ProductsController {
             (pathsToValidate?: import("mongoose").pathsToValidate, options?: import("mongoose").AnyObject): import("mongoose").Error.ValidationError | null;
         };
     }[]>;
+    uploadProductPhotos(id: string, files: Express.Multer.File[]): Promise<{
+        photoUrls: string[];
+    }>;
+    deleteProductPhoto(id: string, photoUrl: string): Promise<{
+        success: boolean;
+    }>;
+    deleteAllProductPhotos(id: string): Promise<{
+        success: boolean;
+    }>;
 }

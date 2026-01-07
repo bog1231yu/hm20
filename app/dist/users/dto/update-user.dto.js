@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateUserDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 var Gender;
 (function (Gender) {
     Gender["MALE"] = "male";
@@ -26,6 +27,7 @@ class UpdateUserDto {
 }
 exports.UpdateUserDto = UpdateUserDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'John', description: 'User first name' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'firstName must be a string' }),
     (0, class_validator_1.MinLength)(2, { message: 'firstName must be at least 2 characters' }),
@@ -33,6 +35,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "firstName", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Doe', description: 'User last name' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'lastName must be a string' }),
     (0, class_validator_1.MinLength)(2, { message: 'lastName must be at least 2 characters' }),
@@ -40,11 +43,13 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "lastName", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'john.doe@example.com', description: 'User email address' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEmail)({}, { message: 'email must be a valid email address' }),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: '+1234567890', description: 'User phone number' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'phoneNumber must be a string' }),
     (0, class_validator_1.MinLength)(5, { message: 'phoneNumber must be at least 5 characters' }),
@@ -52,6 +57,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'male', enum: ['male', 'female', 'other'], description: 'User gender' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(Gender, { message: 'gender must be male, female, or other' }),
     __metadata("design:type", String)

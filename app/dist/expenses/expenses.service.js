@@ -41,6 +41,8 @@ let ExpensesService = class ExpensesService {
     }
     async findAll(query) {
         const filter = {};
+        if (query.userId)
+            filter.user = query.userId;
         if (query.category)
             filter.category = query.category;
         if (query.priceFrom !== undefined || query.priceTo !== undefined) {
@@ -60,11 +62,6 @@ let ExpensesService = class ExpensesService {
         return this.expenseModel.findById(id).lean();
     }
     async update(id, dto) {
-        if (dto.userId) {
-            const user = await this.usersService.findOne(dto.userId);
-            if (!user)
-                throw new common_1.NotFoundException('User not found');
-        }
         if (dto.quantity !== undefined || dto.price !== undefined) {
             const expense = await this.expenseModel.findById(id);
             if (!expense)
@@ -80,6 +77,70 @@ let ExpensesService = class ExpensesService {
     async delete(id) {
         const res = await this.expenseModel.findByIdAndDelete(id);
         return !!res;
+    }
+    async getStatistics(userId) {
+        const matchStage = userId ? { user: userId } : {};
+        const statistics = await this.expenseModel.aggregate([
+            { $match: matchStage },
+            {
+                $group: {
+                    _id: '$category',
+                    totalAmount: { $sum: '$totalPrice' },
+                    itemCount: { $sum: 1 },
+                    expenses: { $push: '$$ROOT' }
+                }
+            },
+            {
+                $project: {
+                    category: '$_id',
+                    totalAmount: 1,
+                    itemCount: 1,
+                    expenses: 1,
+                    _id: 0
+                }
+            },
+            { $sort: { totalAmount: -1 } }
+        ]);
+        return statistics;
+    }
+    async getTopSpenders(limit = 10) {
+        const topSpenders = await this.expenseModel.aggregate([
+            {
+                $group: {
+                    _id: '$user',
+                    totalSpent: { $sum: '$totalPrice' },
+                    expenseCount: { $sum: 1 }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user'
+            },
+            {
+                $project: {
+                    userId: '$_id',
+                    user: {
+                        _id: '$user._id',
+                        firstName: '$user.firstName',
+                        lastName: '$user.lastName',
+                        email: '$user.email'
+                    },
+                    totalSpent: 1,
+                    expenseCount: 1,
+                    _id: 0
+                }
+            },
+            { $sort: { totalSpent: -1 } },
+            { $limit: limit }
+        ]);
+        return topSpenders;
     }
 };
 exports.ExpensesService = ExpensesService;

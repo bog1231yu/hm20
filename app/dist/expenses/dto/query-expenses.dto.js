@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueryExpensesDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 const KNOWN_CATEGORIES = ['food', 'transport', 'utilities', 'entertainment', 'office', 'supplies', 'other'];
 class QueryExpensesDto {
     page = 1;
@@ -22,6 +23,7 @@ class QueryExpensesDto {
 }
 exports.QueryExpensesDto = QueryExpensesDto;
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 1, description: 'Page number for pagination' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'page must be a number' }),
@@ -29,6 +31,7 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryExpensesDto.prototype, "page", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 30, description: 'Number of items per page' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'take must be a number' }),
@@ -36,12 +39,14 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryExpensesDto.prototype, "take", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'food', enum: KNOWN_CATEGORIES, description: 'Filter by expense category' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ message: 'category must be a string' }),
     (0, class_validator_1.IsIn)(KNOWN_CATEGORIES, { message: `category must be one of: ${KNOWN_CATEGORIES.join(', ')}` }),
     __metadata("design:type", String)
 ], QueryExpensesDto.prototype, "category", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 10, description: 'Minimum price filter' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'priceFrom must be a number' }),
@@ -49,6 +54,7 @@ __decorate([
     __metadata("design:type", Number)
 ], QueryExpensesDto.prototype, "priceFrom", void 0);
 __decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 100, description: 'Maximum price filter' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'priceTo must be a number' }),

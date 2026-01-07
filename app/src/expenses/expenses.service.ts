@@ -13,9 +13,7 @@ export class ExpensesService {
     private usersService: UsersService,
   ) {}
 
-  // CREATE
-  async create(createExpenseDto: CreateExpenseDto) {
-    // verify user exists
+  async create(createExpenseDto: CreateExpenseDto & { userId: string }) {
     const user = await this.usersService.findOne(createExpenseDto.userId);
     if (!user) throw new NotFoundException('User not found');
 
@@ -31,9 +29,9 @@ export class ExpensesService {
     return created.toObject();
   }
 
-  // READ ALL with pagination and filtering
-  async findAll(query: QueryExpensesDto) {
+  async findAll(query: QueryExpensesDto & { userId?: string }) {
     const filter: any = {};
+    if (query.userId) filter.user = query.userId;
     if (query.category) filter.category = query.category;
     if (query.priceFrom !== undefined || query.priceTo !== undefined) {
       filter.price = {};
@@ -50,16 +48,11 @@ export class ExpensesService {
     return { data, total, page, take };
   }
 
-  // READ ONE
   async findOne(id: string) {
     return this.expenseModel.findById(id).lean();
   }
 
   async update(id: string, dto: Partial<CreateExpenseDto>) {
-    if (dto.userId) {
-      const user = await this.usersService.findOne(dto.userId);
-      if (!user) throw new NotFoundException('User not found');
-    }
     if (dto.quantity !== undefined || dto.price !== undefined) {
       const expense = await this.expenseModel.findById(id);
       if (!expense) return null;
@@ -75,5 +68,74 @@ export class ExpensesService {
   async delete(id: string) {
     const res = await this.expenseModel.findByIdAndDelete(id);
     return !!res;
+  }
+
+  async getStatistics(userId?: string) {
+    const matchStage = userId ? { user: userId } : {};
+
+    const statistics = await this.expenseModel.aggregate([
+      { $match: matchStage },
+      {
+        $group: {
+          _id: '$category',
+          totalAmount: { $sum: '$totalPrice' },
+          itemCount: { $sum: 1 },
+          expenses: { $push: '$$ROOT' }
+        }
+      },
+      {
+        $project: {
+          category: '$_id',
+          totalAmount: 1,
+          itemCount: 1,
+          expenses: 1,
+          _id: 0
+        }
+      },
+      { $sort: { totalAmount: -1 } }
+    ]);
+
+    return statistics;
+  }
+
+  async getTopSpenders(limit: number = 10) {
+    const topSpenders = await this.expenseModel.aggregate([
+      {
+        $group: {
+          _id: '$user',
+          totalSpent: { $sum: '$totalPrice' },
+          expenseCount: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          userId: '$_id',
+          user: {
+            _id: '$user._id',
+            firstName: '$user.firstName',
+            lastName: '$user.lastName',
+            email: '$user.email'
+          },
+          totalSpent: 1,
+          expenseCount: 1,
+          _id: 0
+        }
+      },
+      { $sort: { totalSpent: -1 } },
+      { $limit: limit }
+    ]);
+
+    return topSpenders;
   }
 }

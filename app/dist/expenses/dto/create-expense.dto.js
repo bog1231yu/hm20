@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateExpenseDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
+const swagger_1 = require("@nestjs/swagger");
 const KNOWN_CATEGORIES = ['food', 'transport', 'utilities', 'entertainment', 'office', 'supplies', 'other'];
 class CreateExpenseDto {
-    userId;
     category;
     productName;
     quantity;
@@ -22,22 +22,20 @@ class CreateExpenseDto {
 }
 exports.CreateExpenseDto = CreateExpenseDto;
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'userId is required' }),
-    (0, class_validator_1.IsMongoId)({ message: 'userId must be a valid MongoId' }),
-    __metadata("design:type", String)
-], CreateExpenseDto.prototype, "userId", void 0);
-__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'food', enum: KNOWN_CATEGORIES, description: 'Expense category' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'category is required' }),
     (0, class_validator_1.IsString)({ message: 'category must be a string' }),
     (0, class_validator_1.IsIn)(KNOWN_CATEGORIES, { message: `category must be one of: ${KNOWN_CATEGORIES.join(', ')}` }),
     __metadata("design:type", String)
 ], CreateExpenseDto.prototype, "category", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Pizza delivery', description: 'Product name' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'productName is required' }),
     (0, class_validator_1.IsString)({ message: 'productName must be a string' }),
     __metadata("design:type", String)
 ], CreateExpenseDto.prototype, "productName", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 2, description: 'Quantity of items' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'quantity is required' }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'quantity must be a number' }),
@@ -45,6 +43,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateExpenseDto.prototype, "quantity", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 25.50, description: 'Price per item' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'price is required' }),
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsNumber)({}, { message: 'price must be a number' }),

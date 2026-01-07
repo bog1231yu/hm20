@@ -1,19 +1,27 @@
-import { Schema, Document, Types } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-export interface ExpenseDocument extends Document {
+@Schema()
+export class Expense extends Document {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   user: Types.ObjectId;
+
+  @Prop({ required: true })
   category: string;
+
+  @Prop({ required: true })
   productName: string;
+
+  @Prop({ required: true })
   quantity: number;
+
+  @Prop({ required: true })
   price: number;
+
+  @Prop({ required: true })
   totalPrice: number;
 }
 
-export const ExpenseSchema = new Schema<ExpenseDocument>({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  category: { type: String, required: true },
-  productName: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  price: { type: Number, required: true },
-  totalPrice: { type: Number, required: true },
-});
+export const ExpenseSchema = SchemaFactory.createForClass(Expense);
+
+export interface ExpenseDocument extends Expense {}

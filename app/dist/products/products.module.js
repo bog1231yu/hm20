@@ -13,12 +13,17 @@ const products_service_1 = require("./products.service");
 const products_controller_1 = require("./products.controller");
 const users_module_1 = require("../users/users.module");
 const product_schema_1 = require("./schemas/product.schema");
+const aws_module_1 = require("../aws/aws.module");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
 exports.ProductsModule = ProductsModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule, mongoose_1.MongooseModule.forFeature([{ name: 'Product', schema: product_schema_1.ProductSchema }])],
+        imports: [
+            users_module_1.UsersModule,
+            mongoose_1.MongooseModule.forFeature([{ name: 'Product', schema: product_schema_1.ProductSchema }]),
+            aws_module_1.AwsModule,
+        ],
         controllers: [products_controller_1.ProductsController],
         providers: [products_service_1.ProductsService],
     })

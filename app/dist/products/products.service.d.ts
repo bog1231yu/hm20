@@ -1,11 +1,13 @@
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { S3Service } from '../aws/s3.service';
 import type { ProductDocument } from './schemas/product.schema';
 export declare class ProductsService {
     private productModel;
     private usersService;
-    constructor(productModel: Model<ProductDocument>, usersService: UsersService);
+    private s3Service;
+    constructor(productModel: Model<ProductDocument>, usersService: UsersService, s3Service: S3Service);
     create(dto: CreateProductDto): Promise<ProductDocument & {
         _id: import("mongoose").Types.ObjectId;
     }>;
@@ -15,6 +17,7 @@ export declare class ProductsService {
         category: string;
         description?: string | undefined;
         quantity: number;
+        photos: string[];
         _id: any;
         __v?: any;
         $assertPopulated: <Paths = {}>(path: string | string[], values?: Partial<Paths> | undefined) => Omit<ProductDocument, keyof Paths> & Paths;
@@ -155,4 +158,8 @@ export declare class ProductsService {
             (pathsToValidate?: import("mongoose").pathsToValidate, options?: import("mongoose").AnyObject): import("mongoose").Error.ValidationError | null;
         };
     }[]>;
+    uploadProductPhotos(productId: string, files: Express.Multer.File[]): Promise<string[]>;
+    deleteProductPhoto(productId: string, photoUrl: string): Promise<boolean>;
+    deleteAllProductPhotos(productId: string): Promise<boolean>;
+    private extractKeyFromUrl;
 }

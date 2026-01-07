@@ -7,10 +7,14 @@ export declare class ExpensesService {
     private expenseModel;
     private usersService;
     constructor(expenseModel: Model<ExpenseDocument>, usersService: UsersService);
-    create(createExpenseDto: CreateExpenseDto): Promise<ExpenseDocument & {
+    create(createExpenseDto: CreateExpenseDto & {
+        userId: string;
+    }): Promise<ExpenseDocument & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    findAll(query: QueryExpensesDto): Promise<{
+    findAll(query: QueryExpensesDto & {
+        userId?: string;
+    }): Promise<{
         data: (import("mongoose").FlattenMaps<ExpenseDocument> & {
             _id: import("mongoose").Types.ObjectId;
         })[];
@@ -25,4 +29,6 @@ export declare class ExpensesService {
         _id: import("mongoose").Types.ObjectId;
     }) | null>;
     delete(id: string): Promise<boolean>;
+    getStatistics(userId?: string): Promise<any[]>;
+    getTopSpenders(limit?: number): Promise<any[]>;
 }
